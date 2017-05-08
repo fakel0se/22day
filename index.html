@@ -85,7 +85,6 @@
 				window[ID].x = x;
 				window[ID].y = y;
 				createjs.Ticker.addEventListener("tick", onTickHandler);
-				createjs.Ticker.setFPS(60);				
 			}
 			function interval(a, b) 
 			{	
@@ -123,6 +122,7 @@
 			});
 
 			socket.on('imoved', function(x, y){
+				console(Date().getTime(), ' update to ', x, ' ', y);
 				sprite.x = x;
 				sprite.y = y;  
 				stage.update();           
