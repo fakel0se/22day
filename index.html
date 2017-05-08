@@ -1,0 +1,126 @@
+﻿<!doctype html>
+<html>
+  <head>
+    <script src="https://code.createjs.com/easeljs-0.8.0.min.js"> </script>
+    <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"> </script>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"> </script>
+    <title>Canvas Animation</title>
+    <style>
+      #canvas {border: solid 1px black;
+							 cursor: url('/cur'), auto;
+							}
+    </style>
+  </head> 
+  <body>
+    <canvas id="canvas"></canvas><br>
+    <script >
+			var socket = io();
+
+			stage = new createjs.Stage("canvas");
+			canvas = document.querySelector('canvas');
+			canvas.width = window.innerWidth-50;
+			canvas.height = window.innerHeight-50;
+			var sprite;
+			var mouseX = 0;
+			var mouseY = 0;
+			
+			socket.on('connecting', function(playerID) {
+				var data = {
+					images: ["/qwe"],
+					frames: {width: 88, height: 80, regY: 44, regX: 40},
+					animations: {
+						stand: [0],
+						walk: [0, 4]
+					}	  
+				};
+				var spriteSheet = new createjs.SpriteSheet(data);
+				sprite = new createjs.Sprite(spriteSheet, "walk");
+				stage.addChild(sprite);
+				sprite.x = 200;
+				sprite.y = 200;
+				mouseX = sprite.x;
+				mouseY = sprite.y;
+				createjs.Ticker.addEventListener("tick", onTickHandler);
+				socket.emit('connected', playerID, sprite.x, sprite.y);
+			});
+			
+			socket.on('show players', function(players) {
+				for (player in players)
+					showPlayer(player, players[player].x, players[player].y);
+			});
+			
+			socket.on('imready', function(ID, x, y) {
+				showPlayer(ID, x, y);
+			});
+
+
+			socket.on('player moved', function(playerID, x, y) {
+				window[playerID].x = x;
+				window[playerID].y = y;
+			});
+			
+			socket.on('dis', function(playerID) {
+				stage.removeChild(window[playerID]);
+			});		
+			
+			
+			function showPlayer(ID, x, y) {
+				console.log(ID);
+				var data = {
+					images: ["/qwe"],
+					frames: {width: 88, height: 80, regY: 44, regX: 40},
+					animations: {
+						stand: [0],
+						walk: [0, 4]
+					}	  
+				};
+				var spriteSheet = new createjs.SpriteSheet(data);
+				window[ID] = new createjs.Sprite(spriteSheet, "walk");
+				stage.addChild(window[ID]);
+				window[ID].x = x;
+				window[ID].y = y;
+				createjs.Ticker.addEventListener("tick", onTickHandler);			
+			}
+			function interval(a, b) 
+			{	
+				return ((a < (b + 10)) && (a > (b - 10)))
+			}
+			function onTickHandler(evt) {
+				if (interval(mouseX, sprite.x) && interval(mouseY, sprite.y))
+					return;
+				let x;
+				let y;
+				
+				let diffX = mouseX - sprite.x;
+				let diffY = mouseY - sprite.y;
+				if (diffX < 0) diffX = -diffX;
+				if (diffY < 0) diffY = -diffY;
+				
+				if (diffX > diffY) {
+					if (sprite.x > mouseX)
+						x = sprite.x - 10;
+					else x = sprite.x + 10;
+					y = (x - sprite.x) / (mouseX - sprite.x) * (mouseY - sprite.y) + sprite.y;	
+				} else {
+					if (sprite.y > mouseY)
+						y = sprite.y - 10;
+					else y = sprite.y + 10;
+					x = (y - sprite.y) / (mouseY - sprite.y) * (mouseX - sprite.x) + sprite.x;	
+				}
+				socket.emit('player moved', x, y);	
+			};
+			
+			stage.on('stagemousemove', function(evt) {
+				mouseX = evt.stageX;
+				mouseY = evt.stageY;
+				//socket.emit('player moved', evt.stageX, evt.stageY);				
+			});
+
+			socket.on('imoved', function(x, y){
+				sprite.x = x;
+				sprite.y = y;  
+				stage.update();           
+			});		
+    </script>
+  </body>
+</html>
