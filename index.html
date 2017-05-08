@@ -41,6 +41,7 @@
 				mouseX = sprite.x;
 				mouseY = sprite.y;
 				createjs.Ticker.addEventListener("tick", onTickHandler);
+				createjs.Ticker.setFPS(60);			
 				socket.emit('connected', playerID, sprite.x, sprite.y);
 			});
 			
@@ -71,7 +72,10 @@
 					frames: {width: 88, height: 80, regY: 44, regX: 40},
 					animations: {
 						stand: [0],
-						walk: [0, 4]
+						walk: {
+							frames: [0, 1, 2, 3, 4],
+							speed: 0.001
+						}
 					}	  
 				};
 				var spriteSheet = new createjs.SpriteSheet(data);
@@ -99,13 +103,13 @@
 				
 				if (diffX > diffY) {
 					if (sprite.x > mouseX)
-						x = sprite.x - 20;
-					else x = sprite.x + 20;
+						x = sprite.x - 10;
+					else x = sprite.x + 10;
 					y = (x - sprite.x) / (mouseX - sprite.x) * (mouseY - sprite.y) + sprite.y;	
 				} else {
 					if (sprite.y > mouseY)
-						y = sprite.y - 20;
-					else y = sprite.y + 20;
+						y = sprite.y - 10;
+					else y = sprite.y + 10;
 					x = (y - sprite.y) / (mouseY - sprite.y) * (mouseX - sprite.x) + sprite.x;	
 				}
 				socket.emit('player moved', x, y);	
