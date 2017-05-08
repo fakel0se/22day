@@ -58,6 +58,7 @@
 			socket.on('player moved', function(playerID, x, y) {
 				window[playerID].x = x;
 				window[playerID].y = y;
+				stage.update();
 			});
 			
 			socket.on('dis', function(playerID) {
