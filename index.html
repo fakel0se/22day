@@ -98,13 +98,13 @@
 				
 				if (diffX > diffY) {
 					if (sprite.x > mouseX)
-						x = sprite.x - 10;
-					else x = sprite.x + 10;
+						x = sprite.x - 20;
+					else x = sprite.x + 20;
 					y = (x - sprite.x) / (mouseX - sprite.x) * (mouseY - sprite.y) + sprite.y;	
 				} else {
 					if (sprite.y > mouseY)
-						y = sprite.y - 10;
-					else y = sprite.y + 10;
+						y = sprite.y - 20;
+					else y = sprite.y + 20;
 					x = (y - sprite.y) / (mouseY - sprite.y) * (mouseX - sprite.x) + sprite.x;	
 				}
 				socket.emit('player moved', x, y);	
